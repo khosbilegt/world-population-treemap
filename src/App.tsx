@@ -274,6 +274,19 @@ const App = () => {
             </div>
           ))}
       </div>
+
+      {/* Footer */}
+      <footer className="mt-8 text-center text-xs text-gray-500">
+        Data source:{" "}
+        <a
+          href="https://data.worldbank.org/indicator/SP.POP.TOTL"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-blue-700"
+        >
+          World Bank - Total Population
+        </a>
+      </footer>
     </div>
   );
 };
