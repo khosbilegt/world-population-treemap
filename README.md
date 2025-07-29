@@ -2,6 +2,8 @@
 
 A React + Vite web app that visualizes world population by country as a treemap, with data from 1960 to 2024. Each rectangle represents a country, sized by its population for the selected year.
 
+This project was vibe coded with Claude and Copilot, inspired by a Reddit post.
+
 ## Features
 
 - Interactive treemap visualization of world population
