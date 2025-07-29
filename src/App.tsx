@@ -42,15 +42,34 @@ const App = () => {
     width: number,
     height: number
   ) => {
-    const sortedData = [...data].sort((a, b) => b.population - a.population);
-    const rectangles = [];
+    // Group by continent, then sort by population within each continent
+    const grouped: { [key: string]: Country[] } = {};
+    for (const c of data) {
+      if (!grouped[c.continent]) grouped[c.continent] = [];
+      grouped[c.continent].push(c);
+    }
+    Object.keys(grouped).forEach(
+      (k) =>
+        (grouped[k] = grouped[k].sort((a, b) => b.population - a.population))
+    );
 
+    // Flatten grouped data, preserving continent grouping
+    const groupedData: Country[] = [];
+    Object.keys(continentColors).forEach((cont) => {
+      if (grouped[cont]) groupedData.push(...grouped[cont]);
+    });
+    // Add any remaining continents not in continentColors
+    Object.keys(grouped)
+      .filter((cont) => !(cont in continentColors))
+      .forEach((cont) => groupedData.push(...grouped[cont]));
+
+    const rectangles = [];
     let currentY = 0;
     let currentRowHeight = 0;
     let currentX = 0;
     let remainingWidth = width;
     let remainingArea = width * height;
-    let remainingData = [...sortedData];
+    let remainingData = [...groupedData];
 
     while (remainingData.length > 0 && remainingArea > 0) {
       // Calculate how many items to put in this row
@@ -58,15 +77,26 @@ const App = () => {
       let rowArea = 0;
 
       // Try to fit as many items as possible in the current row
-      for (let i = 0; i < remainingData.length; i++) {
+      // --- group by continent for this row ---
+      let i = 0;
+      let lastContinent = null;
+      while (i < remainingData.length) {
         const item = remainingData[i];
         const itemArea = (item.population / totalPopulation) * (width * height);
         if (
           rowArea + itemArea <= (remainingWidth * height) / 4 ||
           rowData.length === 0
         ) {
-          rowData.push(item);
-          rowArea += itemArea;
+          // If this is the first item or same continent as previous, add
+          if (lastContinent === null || item.continent === lastContinent) {
+            rowData.push(item);
+            rowArea += itemArea;
+            lastContinent = item.continent;
+            i++;
+          } else {
+            // Stop at continent boundary for this row
+            break;
+          }
         } else {
           break;
         }
